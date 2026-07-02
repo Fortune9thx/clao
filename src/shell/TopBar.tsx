@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ConnectButton, useChainModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
@@ -8,18 +8,21 @@ import { useViewStore, SCREEN_TITLES } from "@/store/useViewStore";
 import { SUPPORTED_CHAIN_IDS } from "@/lib/wagmi/config";
 
 /** Syncs RainbowKit wallet state into the CLAO Zustand store.
- *  Only triggers when the user has entered the app (not on the landing page). */
+ *  Only triggers once per wallet address when the user is in the app shell. */
 function useWalletSync() {
   const { address, isConnected } = useAccount();
   const connectWallet = useClaoStore((s) => s.connectWallet);
   const connection = useConnection();
   const showLanding = useViewStore((s) => s.showLanding);
+  const attempted = useRef<string | null>(null);
 
   useEffect(() => {
     if (showLanding) return;
-    if (isConnected && address && connection.status !== "connected") {
-      void connectWallet(address);
-    }
+    if (!isConnected || !address) { attempted.current = null; return; }
+    if (connection.status === "connected" || connection.status === "connecting") return;
+    if (attempted.current === address) return;
+    attempted.current = address;
+    void connectWallet(address);
   }, [isConnected, address, connection.status, connectWallet, showLanding]);
 }
 

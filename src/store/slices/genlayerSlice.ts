@@ -69,27 +69,31 @@ export const createGenLayerSlice: StateCreator<ClaoStore, [], [], GenLayerSlice>
           ? JSON.stringify(err)
           : String(err);
 
-      // Classify the error so we can give a precise status + user message.
-      const isNoContract  = msg.includes("VITE_CLAO_ADDRESS") || msg.includes("not deployed");
-      const isNoWallet    = msg.includes("EIP-1193") || msg.includes("MetaMask");
-      const isUserReject  = msg.toLowerCase().includes("user rejected") || msg.includes("4001");
-      const isWrongNet    = msg.includes("network") || msg.includes("chain");
+      const lower = msg.toLowerCase();
 
-      const newStatus = isNoWallet || isUserReject
+      const isNoContract  = lower.includes("vite_clao_address") || lower.includes("not deployed");
+      const isNoWallet    = lower.includes("eip-1193") || lower.includes("metamask");
+      const isUserReject  = lower.includes("user rejected") || msg.includes("4001");
+      const isPending     = lower.includes("already pending");
+      const isWrongNet    = lower.includes("network") || lower.includes("chain");
+
+      const newStatus = isNoWallet || isUserReject || isPending
         ? "disconnected"
         : isNoContract || isWrongNet
           ? "wrong_network"
           : "disconnected";
 
-      const userMessage = isNoContract
-        ? "Contract not deployed — run `npm run gen:deploy` and set VITE_CLAO_ADDRESS."
-        : isNoWallet
-          ? "No wallet detected — install MetaMask to go live."
-          : isUserReject
-            ? "Connection cancelled."
-            : isWrongNet
-              ? "Wrong network — switch MetaMask to GenLayer Studionet or Bradbury."
-              : msg;
+      const userMessage = isPending
+        ? "A wallet request is already open — check MetaMask."
+        : isNoContract
+          ? "Contract not deployed — run `npm run gen:deploy` and set VITE_CLAO_ADDRESS."
+          : isNoWallet
+            ? "No wallet detected — install MetaMask to go live."
+            : isUserReject
+              ? "Connection cancelled."
+              : isWrongNet
+                ? "Switch MetaMask to GenLayer Studionet."
+                : msg.length > 120 ? msg.slice(0, 120) + "…" : msg;
 
       console.warn("[CLAO] connectWallet failed, falling back to mock:", msg);
       set((s) => ({

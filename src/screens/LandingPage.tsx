@@ -211,6 +211,17 @@ const HERO_STATS = [
 export function LandingPage() {
   const enterApp = useViewStore((s) => s.enterApp);
 
+  function scrollTo(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const NAV_LINKS: { label: string; action: () => void }[] = [
+    { label: "Product",   action: () => scrollTo("section-product") },
+    { label: "Features",  action: () => scrollTo("section-features") },
+    { label: "Docs",      action: () => window.open("https://docs.genlayer.com", "_blank") },
+    { label: "Community", action: () => scrollTo("section-community") },
+  ];
+
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "#0D0D0F", color: "#F5F0E8", fontFamily: sans, overflowX: "hidden" }}>
 
@@ -225,8 +236,16 @@ export function LandingPage() {
           <span style={{ font: `700 18px/1 ${sans}`, color: "transparent", background: "linear-gradient(180deg,#E0E0E0,#909090)", WebkitBackgroundClip: "text", backgroundClip: "text", letterSpacing: 7 }}>CLAO</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          {["Product", "Features", "Docs", "Community"].map((t) => (
-            <span key={t} style={{ font: `500 13px ${sans}`, color: "#6B6560", cursor: "pointer" }}>{t}</span>
+          {NAV_LINKS.map(({ label, action }) => (
+            <span
+              key={label}
+              onClick={action}
+              style={{ font: `500 13px ${sans}`, color: "#6B6560", cursor: "pointer", transition: "color .15s" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#B8B0A2")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#6B6560")}
+            >
+              {label}
+            </span>
           ))}
           <button onClick={enterApp} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 13px ${sans}`, padding: "10px 22px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
             Launch App
@@ -292,7 +311,7 @@ export function LandingPage() {
       </section>
 
       {/* WHAT IS CLAO */}
-      <section style={{ padding: "128px 64px", background: "#0D0D0F", position: "relative", overflow: "hidden" }}>
+      <section id="section-product" style={{ padding: "128px 64px", background: "#0D0D0F", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle,rgba(139,92,246,.06),transparent 70%)", transform: "translate(-50%,-50%)", filter: "blur(60px)" }} />
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
@@ -321,7 +340,7 @@ export function LandingPage() {
 
       {/* FEATURES */}
       {FEATURES.map((f, i) => (
-        <section key={f.kicker} style={{ padding: "128px 64px", background: i % 2 === 0 ? "#131315" : "#0D0D0F", borderTop: i % 2 === 0 ? "1px solid rgba(255,255,255,.04)" : undefined }}>
+        <section id={i === 0 ? "section-features" : undefined} key={f.kicker} style={{ padding: "128px 64px", background: i % 2 === 0 ? "#131315" : "#0D0D0F", borderTop: i % 2 === 0 ? "1px solid rgba(255,255,255,.04)" : undefined }}>
           <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 96, alignItems: "center" }}>
             {f.reverse ? (
               <>
@@ -350,7 +369,7 @@ export function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section style={{ padding: "160px 64px", background: "#131315", position: "relative", overflow: "hidden", textAlign: "center" }}>
+      <section id="section-community" style={{ padding: "160px 64px", background: "#131315", position: "relative", overflow: "hidden", textAlign: "center" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", width: 800, height: 800, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,255,255,.03),transparent 60%)", transform: "translate(-50%,-50%)", filter: "blur(80px)" }} />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 700, margin: "0 auto" }}>
           <h2 style={{ font: `300 56px/1 ${sans}`, color: "#F5F0E8", letterSpacing: -2, margin: "0 0 24px" }}>Govern with intelligence.</h2>

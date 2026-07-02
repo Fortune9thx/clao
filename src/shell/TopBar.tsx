@@ -7,17 +7,20 @@ import { useConnection } from "@/store/selectors";
 import { useViewStore, SCREEN_TITLES } from "@/store/useViewStore";
 import { SUPPORTED_CHAIN_IDS } from "@/lib/wagmi/config";
 
-/** Syncs RainbowKit wallet state into the CLAO Zustand store. */
+/** Syncs RainbowKit wallet state into the CLAO Zustand store.
+ *  Only triggers when the user has entered the app (not on the landing page). */
 function useWalletSync() {
   const { address, isConnected } = useAccount();
   const connectWallet = useClaoStore((s) => s.connectWallet);
   const connection = useConnection();
+  const showLanding = useViewStore((s) => s.showLanding);
 
   useEffect(() => {
+    if (showLanding) return;
     if (isConnected && address && connection.status !== "connected") {
       void connectWallet(address);
     }
-  }, [isConnected, address, connection.status, connectWallet]);
+  }, [isConnected, address, connection.status, connectWallet, showLanding]);
 }
 
 /** Full-width dismissable banner when wallet is on a non-GenLayer chain.

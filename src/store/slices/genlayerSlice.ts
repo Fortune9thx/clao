@@ -63,7 +63,11 @@ export const createGenLayerSlice: StateCreator<ClaoStore, [], [], GenLayerSlice>
       // "proposal already exists" contract errors.
       await get().hydrateFromChain();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null
+          ? JSON.stringify(err)
+          : String(err);
 
       // Classify the error so we can give a precise status + user message.
       const isNoContract  = msg.includes("VITE_CLAO_ADDRESS") || msg.includes("not deployed");

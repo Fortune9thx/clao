@@ -1,6 +1,7 @@
 import type { ContractViewMethod, ContractWriteMethod, GlChainName } from "@/types";
 import type { ContractGateway, WriteResult } from "./gateway";
 import { CONTRACT_ADDRESS } from "./abi";
+import * as gl from "genlayer-js";
 
 // LiveGateway — real GenLayer writes via genlayer-js v1.1.8.
 //
@@ -68,8 +69,6 @@ export interface LiveConnection {
 // Network from env — validated against known chain keys at connect time.
 const NETWORK = ((import.meta.env.VITE_GL_NETWORK as string) || "studionet") as GlChainName;
 
-// TransactionStatus.FINALIZED from the SDK equals this string.
-// We avoid importing the enum statically so genlayer-js stays in the async chunk.
 const TX_FINALIZED = "FINALIZED";
 
 // How long to wait for an intelligent contract to reach FINALIZED status.
@@ -174,9 +173,6 @@ export async function connectLive(walletAddress?: `0x${string}`): Promise<LiveCo
     address = accounts[0] as `0x${string}`;
   }
 
-  // Dynamic import keeps genlayer-js (~500 kB) out of the initial bundle.
-  // The app runs on MockGateway until this resolves.
-  const gl = await import("genlayer-js");
   const allChains = gl.chains as Record<string, unknown>;
 
   const networkKey = NETWORK as string;

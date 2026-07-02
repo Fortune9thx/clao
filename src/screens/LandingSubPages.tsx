@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { LandingPageId } from "@/store/useViewStore";
 
 const mono = "'IBM Plex Mono', monospace";
@@ -209,7 +210,18 @@ export function DisclaimersPage({ onBack }: { onBack: () => void }) {
 
 /* ── Blog ────────────────────────────────────────────────────────────── */
 
-const BLOG_POSTS = [
+interface BlogPost {
+  date: string;
+  tag: string;
+  tagColor: string;
+  title: string;
+  excerpt: string;
+  readTime: string;
+  upcoming?: boolean;
+  body?: React.ReactNode;
+}
+
+const BLOG_POSTS: BlogPost[] = [
   {
     date: "July 2026",
     tag: "Product",
@@ -217,6 +229,24 @@ const BLOG_POSTS = [
     title: "Introducing CLAO: The Cognition Layer for Autonomous Organizations",
     excerpt: "Today we're announcing CLAO — an AI-native governance intelligence layer built on GenLayer's subjective smart contract network. Here's what we're building and why it matters for the future of on-chain governance.",
     readTime: "5 min read",
+    body: (
+      <>
+        <P>DAOs govern billions of dollars in collective assets. Yet the tools they rely on — Snapshot votes, forum threads, token-weighted governance — were built for a world that didn't anticipate the scale and complexity of what DAOs have become.</P>
+        <P>Today we're introducing CLAO: the Cognition Layer for Autonomous Organizations. CLAO is an AI-native governance intelligence platform built on GenLayer's subjective smart contract network — designed to bring institutional-grade decision-making to on-chain governance.</P>
+        <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>What CLAO Does</h3>
+        <P>CLAO operates as a reasoning layer between governance participants and on-chain execution. When a proposal is submitted, CLAO's AI validators analyze it for risk, precedent, and impact — providing structured intelligence before a single vote is cast.</P>
+        <P>The platform has four core modules:</P>
+        <UL items={[
+          "Proposal Intelligence — context-aware analysis of each proposal against historical governance data.",
+          "Reputation Engine — multi-dimensional behavioral scoring that goes beyond token holdings.",
+          "Institutional Memory — a living knowledge graph connecting every proposal, decision, and outcome.",
+          "Dispute Resolution — LLM-based validator juries for subjective governance conflicts.",
+        ]} />
+        <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>Built on GenLayer</h3>
+        <P>CLAO is built on GenLayer — the first blockchain with native support for subjective, LLM-powered smart contracts. GenLayer's <code style={{ fontFamily: mono, fontSize: 13, color: "#C4B5FD", background: "rgba(139,92,246,.08)", padding: "2px 6px", borderRadius: 3 }}>eq_principle</code> framework lets validators reason about governance questions that have no deterministic answer — exactly what complex DAO decisions require.</P>
+        <P>We're targeting the GenLayer Bradbury milestone. The CLAORegistry intelligent contract is live on Studionet today. Try it at the link above.</P>
+      </>
+    ),
   },
   {
     date: "June 2026",
@@ -225,6 +255,24 @@ const BLOG_POSTS = [
     title: "How GenLayer's Subjective Validators Enable Real Governance Intelligence",
     excerpt: "Traditional smart contracts are deterministic. GenLayer's eq_principle framework enables LLM-backed validators to reason about subjective governance questions — opening the door to a new class of intelligent DAO tooling.",
     readTime: "8 min read",
+    body: (
+      <>
+        <P>Every smart contract platform that exists today has the same fundamental constraint: contracts are deterministic. Given the same inputs, every node in the network must reach exactly the same output. This is essential for consensus — but it makes smart contracts incapable of reasoning about the world.</P>
+        <P>GenLayer breaks this constraint. Its <code style={{ fontFamily: mono, fontSize: 13, color: "#C4B5FD", background: "rgba(139,92,246,.08)", padding: "2px 6px", borderRadius: 3 }}>eq_principle</code> framework allows intelligent contracts to invoke LLMs as part of their execution — and reach consensus on the output through a probabilistic equivalence check rather than bit-for-bit determinism.</P>
+        <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>Why This Matters for Governance</h3>
+        <P>Governance questions are inherently subjective. "Is this proposal aligned with our DAO's values?" "Does this conflict of interest invalidate this vote?" "Is this expenditure justified given our treasury runway?" These questions can't be answered with if/else logic.</P>
+        <P>With GenLayer's subjective validators, CLAO's CLAORegistry contract can:</P>
+        <UL items={[
+          "Evaluate proposal intent against on-chain governance history.",
+          "Reason about dispute evidence and produce structured verdicts.",
+          "Cast cognitive votes that reflect nuanced analysis, not just numeric thresholds.",
+          "Store reasoning chains on-chain so governance decisions are transparent and auditable.",
+        ]} />
+        <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>How CLAO Uses It</h3>
+        <P>CLAO's <code style={{ fontFamily: mono, fontSize: 13, color: "#C4B5FD", background: "rgba(139,92,246,.08)", padding: "2px 6px", borderRadius: 3 }}>cast_cognitive_vote</code> contract method calls <code style={{ fontFamily: mono, fontSize: 13, color: "#C4B5FD", background: "rgba(139,92,246,.08)", padding: "2px 6px", borderRadius: 3 }}>gl.eq_principle.prompt_non_comparative</code> to have multiple validators independently reason about a proposal. Their outputs — agree/disagree plus a reasoning string — are aggregated on-chain. The result is a consensus score and a human-readable explanation stored permanently in the governance record.</P>
+        <P>This isn't AI as a black box. Every validator's reasoning is visible, every vote is traceable, and the final decision reflects genuine deliberation — not just majority token weight.</P>
+      </>
+    ),
   },
   {
     date: "June 2026",
@@ -233,6 +281,21 @@ const BLOG_POSTS = [
     title: "The Problem with Current DAO Tooling (And How We're Fixing It)",
     excerpt: "73% of DAO proposals fail due to poor analysis. $890M has been lost to governance attacks. Voter participation averages 12%. These aren't unsolvable problems — they're engineering challenges. CLAO tackles each one head-on.",
     readTime: "6 min read",
+    body: (
+      <>
+        <P>The numbers are stark. 73% of DAO proposals fail due to poor analysis. $890M has been lost to governance attacks. The average voter participation rate across major DAOs sits at 12%. These aren't abstract statistics — they represent real capital destroyed and real governance failure.</P>
+        <P>The root cause isn't that DAOs are a bad idea. It's that the tooling hasn't kept pace with the ambition.</P>
+        <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>Problem 1: No Institutional Memory</h3>
+        <P>When a DAO makes a decision, that decision exists in a Snapshot vote and a Notion doc. Six months later, when a similar proposal comes up, no one knows what was decided before or why. DAOs repeat the same mistakes because there's no structured way to surface precedent.</P>
+        <P>CLAO's memory graph connects every proposal, vote, and outcome into a searchable knowledge base. When a new proposal arrives, CLAO surfaces related historical decisions — so governance builds on itself instead of starting over.</P>
+        <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>Problem 2: Reputation is Token Holdings</h3>
+        <P>In most DAOs, governance power equals tokens held. This is trivially gameable: buy tokens, gain influence. Sybil attacks, flash loan governance exploits, and coordinated whale manipulation have cost DAOs hundreds of millions.</P>
+        <P>CLAO's reputation engine is behavioral. It tracks voting consistency, proposal quality over time, delegation patterns, and dispute history — building a multi-dimensional picture of genuine contributors that can't be bought overnight.</P>
+        <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>Problem 3: Governance Fatigue</h3>
+        <P>12% voter participation is a governance crisis. The remaining 88% aren't lazy — they're overwhelmed. Reading every proposal, understanding context, and making informed votes is a part-time job that most token holders can't sustain.</P>
+        <P>CLAO's proposal intelligence gives every voter a structured briefing: risk assessment, precedent comparison, impact modeling. Voting informed takes minutes instead of hours. Participation follows.</P>
+      </>
+    ),
   },
   {
     date: "Coming Soon",
@@ -254,7 +317,36 @@ const BLOG_POSTS = [
   },
 ];
 
+function BlogPostDetail({ post, onBack }: { post: BlogPost; onBack: () => void }) {
+  return (
+    <div style={{ maxWidth: 760, margin: "0 auto", padding: "120px 32px 96px" }}>
+      <button
+        onClick={onBack}
+        style={{ font: `500 12px ${mono}`, color: "#6B6560", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 48, letterSpacing: 0.5 }}
+      >
+        ← Back to Blog
+      </button>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+        <span style={{ font: `600 9px ${mono}`, color: post.tagColor, letterSpacing: 2, textTransform: "uppercase", border: `1px solid ${post.tagColor}30`, padding: "3px 8px", borderRadius: 20 }}>{post.tag}</span>
+        <span style={{ font: `400 11px ${mono}`, color: "#3D3A36" }}>{post.date}</span>
+        <span style={{ font: `400 11px ${mono}`, color: "#3D3A36" }}>·</span>
+        <span style={{ font: `400 11px ${mono}`, color: "#3D3A36" }}>{post.readTime}</span>
+      </div>
+      <h1 style={{ font: `300 44px/1.1 ${sans}`, color: "#F5F0E8", letterSpacing: -1.5, margin: "0 0 48px" }}>{post.title}</h1>
+      <div style={{ borderTop: "1px solid rgba(255,255,255,.06)", paddingTop: 40, font: `400 16px/1.8 ${sans}`, color: "#B8B0A2" }}>
+        {post.body}
+      </div>
+    </div>
+  );
+}
+
 export function BlogPage({ onBack }: { onBack: () => void }) {
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+
+  if (selectedPost) {
+    return <BlogPostDetail post={selectedPost} onBack={() => setSelectedPost(null)} />;
+  }
+
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "120px 32px 96px" }}>
       <button
@@ -271,11 +363,7 @@ export function BlogPage({ onBack }: { onBack: () => void }) {
         {BLOG_POSTS.map((post, i) => (
           <div
             key={i}
-            style={{
-              padding: "40px 0",
-              borderBottom: "1px solid rgba(255,255,255,.06)",
-              opacity: post.upcoming ? 0.45 : 1,
-            }}
+            style={{ padding: "40px 0", borderBottom: "1px solid rgba(255,255,255,.06)", opacity: post.upcoming ? 0.45 : 1 }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
               <span style={{ font: `600 9px ${mono}`, color: post.tagColor, letterSpacing: 2, textTransform: "uppercase", border: `1px solid ${post.tagColor}30`, padding: "3px 8px", borderRadius: 20 }}>{post.tag}</span>
@@ -286,7 +374,14 @@ export function BlogPage({ onBack }: { onBack: () => void }) {
             <h2 style={{ font: `500 22px/1.3 ${sans}`, color: "#F5F0E8", margin: "0 0 12px", letterSpacing: -0.3 }}>{post.title}</h2>
             <p style={{ font: `400 15px/1.7 ${sans}`, color: "#B8B0A2", margin: "0 0 20px", maxWidth: 640 }}>{post.excerpt}</p>
             {!post.upcoming && (
-              <span style={{ font: `600 12px ${sans}`, color: "#8B5CF6", cursor: "pointer" }}>Read more →</span>
+              <span
+                onClick={() => setSelectedPost(post)}
+                style={{ font: `600 12px ${sans}`, color: "#8B5CF6", cursor: "pointer", transition: "color .15s" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#A78BFA")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#8B5CF6")}
+              >
+                Read more →
+              </span>
             )}
           </div>
         ))}

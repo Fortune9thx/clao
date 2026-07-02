@@ -1,14 +1,8 @@
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sidebar } from "@/shell/Sidebar";
 import { TopBar } from "@/shell/TopBar";
 import { LandingPage } from "@/screens/LandingPage";
-import { CommandCenter } from "@/screens/CommandCenter";
-import { ProposalDetail } from "@/screens/ProposalDetail";
-import { InstitutionalMemory } from "@/screens/InstitutionalMemory";
-import { ReputationEngine } from "@/screens/ReputationEngine";
-import { DisputeDetail } from "@/screens/DisputeDetail";
-import { Settings } from "@/screens/Settings";
 import { ToastContainer } from "@/components/Toast";
 import { CommandPalette } from "@/components/CommandPalette";
 import { SubmitProposalModal } from "@/components/SubmitProposalModal";
@@ -16,7 +10,16 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useClaoStore } from "@/store/useClaoStore";
 import { useViewStore, type ScreenId } from "@/store/useViewStore";
 
-const SCREEN_COMPONENT: Record<ScreenId, React.FC> = {
+// Lazy-load each screen so they split into separate chunks.
+// Named exports require the .then(m => ({ default: m.X })) unwrap.
+const CommandCenter      = lazy(() => import("@/screens/CommandCenter").then(m => ({ default: m.CommandCenter })));
+const ProposalDetail     = lazy(() => import("@/screens/ProposalDetail").then(m => ({ default: m.ProposalDetail })));
+const InstitutionalMemory = lazy(() => import("@/screens/InstitutionalMemory").then(m => ({ default: m.InstitutionalMemory })));
+const ReputationEngine   = lazy(() => import("@/screens/ReputationEngine").then(m => ({ default: m.ReputationEngine })));
+const DisputeDetail      = lazy(() => import("@/screens/DisputeDetail").then(m => ({ default: m.DisputeDetail })));
+const Settings           = lazy(() => import("@/screens/Settings").then(m => ({ default: m.Settings })));
+
+const SCREEN_COMPONENT: Record<ScreenId, React.LazyExoticComponent<React.FC>> = {
   home:       CommandCenter,
   proposals:  ProposalDetail,
   memory:     InstitutionalMemory,
@@ -24,6 +27,14 @@ const SCREEN_COMPONENT: Record<ScreenId, React.FC> = {
   disputes:   DisputeDetail,
   settings:   Settings,
 };
+
+function ScreenFallback() {
+  return (
+    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 20, height: 20, border: "1.5px solid rgba(139,92,246,.3)", borderTopColor: "#8B5CF6", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+    </div>
+  );
+}
 
 export default function App() {
   const bootstrapDao = useClaoStore((s) => s.bootstrapDao);
@@ -76,7 +87,9 @@ export default function App() {
                     style={{ position: "absolute", inset: 0 }}
                   >
                     <ErrorBoundary name={screen}>
-                      <Screen />
+                      <Suspense fallback={<ScreenFallback />}>
+                        <Screen />
+                      </Suspense>
                     </ErrorBoundary>
                   </motion.div>
                 </AnimatePresence>

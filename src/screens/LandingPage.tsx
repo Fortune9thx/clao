@@ -289,7 +289,7 @@ export function LandingPage() {
               {label}
             </span>
           ))}
-          <button onClick={enterApp} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 13px ${sans}`, padding: "10px 22px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
+          <button onClick={() => enterApp()} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 13px ${sans}`, padding: "10px 22px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
             Launch App
           </button>
         </div>
@@ -314,7 +314,7 @@ export function LandingPage() {
             Institutional-grade governance intelligence. Adaptive proposals, reputation reasoning, and dispute resolution — powered by subjective AI validators.
           </p>
           <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <button onClick={enterApp} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 15px ${sans}`, padding: "14px 32px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
+            <button onClick={() => enterApp()} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 15px ${sans}`, padding: "14px 32px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
               Launch App
             </button>
             <button style={{ color: "#B8B0A2", font: `600 15px ${sans}`, padding: "14px 32px", background: "transparent", border: "1px solid rgba(255,255,255,.12)", cursor: "pointer", letterSpacing: 0.5 }}>
@@ -419,7 +419,7 @@ export function LandingPage() {
             Join the DAOs building the future of on-chain governance with CLAO.
           </p>
           <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-            <button onClick={enterApp} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 16px ${sans}`, padding: "16px 40px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
+            <button onClick={() => enterApp()} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 16px ${sans}`, padding: "16px 40px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
               Launch App
             </button>
             <button style={{ color: "#B8B0A2", font: `600 16px ${sans}`, padding: "16px 40px", background: "transparent", border: "1px solid rgba(255,255,255,.12)", cursor: "pointer", letterSpacing: 0.5 }}>
@@ -459,10 +459,9 @@ export function LandingPage() {
               {
                 title: "Community",
                 links: [
-                  { label: "Discord",       action: () => window.open("https://discord.gg/genlayer", "_blank") },
-                  { label: "X (Twitter)",   action: () => window.open("https://x.com/genlayer", "_blank") },
                   { label: "Blog",          action: () => goLandingPage("blog") },
                   { label: "Documentation", action: () => goLandingPage("docs") },
+                  { label: "GitHub",        action: () => window.open("https://github.com/Fortune9thx/clao", "_blank") },
                 ],
               },
               {

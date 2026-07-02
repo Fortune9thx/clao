@@ -8,6 +8,8 @@ export type ScreenId =
   | "disputes"
   | "settings";
 
+export type LandingPageId = "home" | "terms" | "privacy" | "disclaimers" | "blog" | "docs";
+
 export const SCREEN_TITLES: Record<ScreenId, string> = {
   home: "Command Center",
   proposals: "Proposal #47",
@@ -21,9 +23,11 @@ interface ViewState {
   showLanding: boolean;
   screen: ScreenId;
   showNewProposal: boolean;
+  landingPage: LandingPageId;
   go: (screen: ScreenId) => void;
-  enterApp: () => void;
+  enterApp: (screen?: ScreenId) => void;
   goToLanding: () => void;
+  goLandingPage: (page: LandingPageId) => void;
   openNewProposal: () => void;
   closeNewProposal: () => void;
 }
@@ -32,9 +36,11 @@ export const useViewStore = create<ViewState>((set) => ({
   showLanding: true,
   screen: "home",
   showNewProposal: false,
+  landingPage: "home",
   go: (screen) => set({ screen }),
-  enterApp: () => set({ showLanding: false, screen: "home" }),
-  goToLanding: () => set({ showLanding: true }),
+  enterApp: (screen = "home") => set({ showLanding: false, screen }),
+  goToLanding: () => set({ showLanding: true, landingPage: "home" }),
+  goLandingPage: (page) => set({ landingPage: page }),
   openNewProposal: () => set({ showNewProposal: true }),
   closeNewProposal: () => set({ showNewProposal: false }),
 }));

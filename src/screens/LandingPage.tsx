@@ -1,5 +1,6 @@
 import { useViewStore } from "@/store/useViewStore";
 import { ClaoOrb } from "@/components/ClaoOrb";
+import { LandingSubPage } from "@/screens/LandingSubPages";
 
 const mono = "'IBM Plex Mono', monospace";
 const sans = "'Space Grotesk', sans-serif";
@@ -209,18 +210,59 @@ const HERO_STATS = [
 /* ── Landing Page ────────────────────────────────────────────────────── */
 
 export function LandingPage() {
-  const enterApp = useViewStore((s) => s.enterApp);
+  const enterApp      = useViewStore((s) => s.enterApp);
+  const goLandingPage = useViewStore((s) => s.goLandingPage);
+  const landingPage   = useViewStore((s) => s.landingPage);
 
   function scrollTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // If on a sub-page, go home first then scroll
+    if (landingPage !== "home") {
+      goLandingPage("home");
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    } else {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   const NAV_LINKS: { label: string; action: () => void }[] = [
     { label: "Product",   action: () => scrollTo("section-product") },
     { label: "Features",  action: () => scrollTo("section-features") },
-    { label: "Docs",      action: () => window.open("https://docs.genlayer.com", "_blank") },
+    { label: "Docs",      action: () => goLandingPage("docs") },
     { label: "Community", action: () => scrollTo("section-community") },
   ];
+
+  // Sub-page view — keep nav, swap body
+  if (landingPage !== "home") {
+    return (
+      <div style={{ width: "100%", minHeight: "100vh", background: "#0D0D0F", color: "#F5F0E8", fontFamily: sans }}>
+        <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "0 64px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(13,13,15,.9)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,.04)" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}
+            onClick={() => goLandingPage("home")}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 20 }}>
+              <span style={{ height: 1.5, background: "linear-gradient(90deg,#C0C0C0,#505050)", borderRadius: 1 }} />
+              <span style={{ height: 1.5, background: "linear-gradient(90deg,#A0A0A0,#404040)", borderRadius: 1, marginLeft: 3 }} />
+              <span style={{ height: 1.5, background: "linear-gradient(90deg,#808080,#303030)", borderRadius: 1, marginLeft: 6 }} />
+            </div>
+            <span style={{ font: `700 18px/1 ${sans}`, color: "transparent", background: "linear-gradient(180deg,#E0E0E0,#909090)", WebkitBackgroundClip: "text", backgroundClip: "text", letterSpacing: 7 }}>CLAO</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+            {NAV_LINKS.map(({ label, action }) => (
+              <span key={label} onClick={action} style={{ font: `500 13px ${sans}`, color: "#6B6560", cursor: "pointer" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#B8B0A2")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#6B6560")}
+              >{label}</span>
+            ))}
+            <button onClick={() => enterApp()} style={{ background: "#F5F0E8", color: "#0D0D0F", font: `600 13px ${sans}`, padding: "10px 22px", border: "none", cursor: "pointer", letterSpacing: 0.5 }}>
+              Launch App
+            </button>
+          </div>
+        </nav>
+        <LandingSubPage page={landingPage} onBack={() => goLandingPage("home")} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "#0D0D0F", color: "#F5F0E8", fontFamily: sans, overflowX: "hidden" }}>
@@ -404,16 +446,45 @@ export function LandingPage() {
                 Cognition Layer for Autonomous Organizations. AI-native governance infrastructure built on GenLayer.
               </p>
             </div>
-            {[
-              { title: "Product", items: ["Command Center", "Proposal Intelligence", "Reputation Engine", "Dispute Resolution"] },
-              { title: "Community", items: ["Discord", "X (Twitter)", "Blog", "Documentation"] },
-              { title: "Legal", items: ["Terms of Use", "Privacy Policy", "Disclaimers"] },
-            ].map((col) => (
+            {([
+              {
+                title: "Product",
+                links: [
+                  { label: "Command Center",       action: () => enterApp("home") },
+                  { label: "Proposal Intelligence", action: () => enterApp("proposals") },
+                  { label: "Reputation Engine",     action: () => enterApp("reputation") },
+                  { label: "Dispute Resolution",    action: () => enterApp("disputes") },
+                ],
+              },
+              {
+                title: "Community",
+                links: [
+                  { label: "Discord",       action: () => window.open("https://discord.gg/genlayer", "_blank") },
+                  { label: "X (Twitter)",   action: () => window.open("https://x.com/genlayer", "_blank") },
+                  { label: "Blog",          action: () => goLandingPage("blog") },
+                  { label: "Documentation", action: () => goLandingPage("docs") },
+                ],
+              },
+              {
+                title: "Legal",
+                links: [
+                  { label: "Terms of Use",   action: () => goLandingPage("terms") },
+                  { label: "Privacy Policy", action: () => goLandingPage("privacy") },
+                  { label: "Disclaimers",    action: () => goLandingPage("disclaimers") },
+                ],
+              },
+            ] as { title: string; links: { label: string; action: () => void }[] }[]).map((col) => (
               <div key={col.title}>
                 <div style={{ font: `600 10px ${mono}`, color: "#6B6560", letterSpacing: 2, textTransform: "uppercase", marginBottom: 20 }}>{col.title}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {col.items.map((item) => (
-                    <span key={item} style={{ font: `400 14px ${sans}`, color: "#B8B0A2", cursor: "pointer" }}>{item}</span>
+                  {col.links.map(({ label, action }) => (
+                    <span
+                      key={label}
+                      onClick={action}
+                      style={{ font: `400 14px ${sans}`, color: "#B8B0A2", cursor: "pointer", transition: "color .15s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = "#F5F0E8")}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = "#B8B0A2")}
+                    >{label}</span>
                   ))}
                 </div>
               </div>

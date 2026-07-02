@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   CLAO DESIGN SYSTEM — Institutional Dark
+   Source of truth: design_handoff_clao_frontend/CLAO Prototype.dc.html
+   Base #0D0D0F · raised #131315 · panel #1A1A1E · chrome #111113
+   Text: warm off-white #F5F0E8 · Space Grotesk (UI) + IBM Plex Mono (data)
+   Accent: CLAO Intelligence purple #8B5CF6
+   ========================================================================== */
+@theme {
+  /* Backgrounds */
+  --color-base: #0d0d0f;
+  --color-raised: #131315;
+  --color-panel: #1a1a1e;
+  --color-chrome: #111113;
+
+  /* Text — warm neutrals */
+  --color-ink-hi: #f5f0e8;
+  --color-ink: #b8b0a2;
+  --color-ink-low: #6b6560;
+  --color-ink-faint: #3d3a36;
+
+  /* Accents — strictly semantic */
+  --color-intel: #8b5cf6; /* CLAO Intelligence */
+  --color-intel-light: #c4b5fd;
+  --color-intel-deep: #4c1d95;
+  --color-rep: #3b82f6; /* reputation */
+  --color-rep-light: #93c5fd;
+  --color-success: #10b981;
+  --color-warn: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* Typography */
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html, body, #root { height: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--color-base);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  ::selection {
+    background: rgba(139, 92, 246, 0.3);
+    color: var(--color-ink-hi);
+  }
+
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 999px; }
+  *::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.16); }
+  *::-webkit-scrollbar-track { background: transparent; }
+}
+
+@layer utilities {
+  /* Panel — the standard raised card */
+  .panel {
+    background: var(--color-raised);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+  }
+
+  /* Micro-label — IBM Plex Mono uppercase */
+  .u-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-ink-low);
+  }
+
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* Hover states used across the shell */
+  .hov-row:hover { background: rgba(255, 255, 255, 0.02); }
+  .hov-chip:hover { background: rgba(255, 255, 255, 0.06); }
+  .hov-chip-soft:hover { background: rgba(255, 255, 255, 0.04); }
+  .hov-border:hover { border-color: rgba(255, 255, 255, 0.12); }
+  .hov-intel:hover { background: rgba(139, 92, 246, 0.12); }
+  .hov-text:hover { color: var(--color-ink-hi); }
+
+  .screen-fade { animation: screenFade 0.28s ease both; }
+}
+
+/* Keyframes — from prototype */
+@keyframes pulseGlow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+@keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.06); opacity: 0.8; } }
+@keyframes orbCore { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 1; } }
+@keyframes orbRing { 0% { transform: scale(0.7); opacity: 0.5; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes orbSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes screenFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes edgeFlow { to { stroke-dashoffset: -48; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.skel {
+  background: linear-gradient(90deg, #1a1a1e 25%, #252528 50%, #1a1a1e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 3px;
+  display: inline-block;
+}

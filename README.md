@@ -1,10 +1,10 @@
-# CLAO — Cognition Layer for Autonomous Organizations
+# CLAO Cognition Layer for Autonomous Organizations
 
-> The cognitive operating system for autonomous organizations, built on **GenLayer** for the **Bradbury** milestone.
+> The cognitive operating system for autonomous organizations, built on **GenLayer**.
 
-CLAO introduces a new organizational branch — the **Cognitive Branch** — that observes, reasons,
+CLAO introduces a new organizational branch, the **Cognitive Branch** that observes, reasons,
 remembers, and adjudicates governance decisions using GenLayer **intelligent contracts**. Unlike a
-passive governance dashboard, every action in CLAO is a real on-chain write into a contract that
+passive governance dashboard, every action in CLAO is a real onchain write into a contract that
 *reasons with an LLM* and reaches **subjective consensus** (the Equivalence Principle).
 
 ## Why the contract is the brain (not a data bag)

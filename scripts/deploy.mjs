@@ -32,11 +32,14 @@ async function main() {
     hash: txId,
     status: "FINALIZED",
     interval: 5000,
-    retries: 60,
+    retries: 144,
   });
 
-  // The contract address is the recipient field of a deploy tx.
+  // The contract address field varies by network:
+  //   Studionet:  receipt.data.contract_address
+  //   Bradbury:   receipt.recipient  (deploy tx recipient = new contract)
   const address =
+    receipt?.recipient ||
     receipt?.data?.contract_address ||
     receipt?.contractAddress ||
     receipt?.to_address;

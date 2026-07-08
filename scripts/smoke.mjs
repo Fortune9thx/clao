@@ -23,7 +23,7 @@ async function main() {
     hash: txId,
     status: "FINALIZED",
     interval: 5000,
-    retries: 30,
+    retries: 144,
   });
   console.log(`   status: ${receipt?.status || "finalized"}`);
 

@@ -1,38 +1,49 @@
-# CLAO Cognition Layer for Autonomous Organizations
+# CLAO
 
-> The cognitive operating system for autonomous organizations, built on **GenLayer**.
+**Cognition Layer for Autonomous Organizations**
 
-CLAO introduces a new organizational branch, the **Cognitive Branch** that observes, reasons,
-remembers, and adjudicates governance decisions using GenLayer **intelligent contracts**. Unlike a
-passive governance dashboard, every action in CLAO is a real onchain write into a contract that
-*reasons with an LLM* and reaches **subjective consensus** (the Equivalence Principle).
+CLAO is an AI-native DAO governance application built on [GenLayer](https://genlayer.com) for the **Bradbury** milestone. It introduces the **Cognitive Branch** — an intelligent contract layer that observes, reasons, remembers, and adjudicates governance decisions on-chain using GenLayer's Equivalence Principle.
 
-## Why the contract is the brain (not a data bag)
+Every action in the UI is a real write into a contract that reasons with an LLM and reaches **subjective consensus on-chain**. There is no deterministic fallback and no off-chain oracle.
 
-The `CLAORegistry` intelligent contract (`contracts/CLAORegistry.py`) exposes the **full write surface**,
-and the UI exercises **all of it**:
+**Live demo:** [clao-red.vercel.app](https://clao-red.vercel.app)
 
-| UI action | Contract method | Kind | GenLayer capability |
+---
+
+## Contract surface
+
+The `CLAORegistry` intelligent contract (`contracts/CLAORegistry.py`) exposes the full governance write surface. The UI exercises all of it:
+
+| Action | Contract method | Kind | Capability |
 |---|---|---|---|
-| Boot | `register_dao` | write | structured state |
-| Boot | `submit_proposal` | write | structured state |
-| Initiate Cognitive Validation | `cast_cognitive_vote` | write + LLM | **subjective consensus on-chain** |
-| Intelligence Report | `record_ruling` | write | institutional memory |
-| Challenge Verdict | `open_dispute` | write | dispute intake |
-| Adjudicate | `resolve_dispute` | write + LLM | **AI jury adjudication** |
-| Simulate Execution | `finalize_execution` | write.payable | treasury release |
-| Attest reputation | `update_reputation` | write | reputation ledger |
-| All panels | `get_dao` / `get_proposal` / `get_memory_timeline` / `get_reputation` / `get_complete_storage` | view | gas-free reads |
+| Boot DAO | `register_dao` | write | structured state |
+| Submit | `submit_proposal` | write | structured state |
+| Validate | `cast_cognitive_vote` | write + LLM | subjective consensus on-chain |
+| Record ruling | `record_ruling` | write | institutional memory |
+| Open challenge | `open_dispute` | write | dispute intake |
+| Adjudicate | `resolve_dispute` | write + LLM | AI jury adjudication |
+| Release funds | `finalize_execution` | write (payable) | treasury release |
+| Attest | `update_reputation` | write | reputation ledger |
+| Read all state | `get_complete_storage` | view | gas-free |
 
-Reference: [Writing Data to GenLayer contracts](https://docs.genlayer.com/developers/decentralized-applications/writing-data).
+The LLM-backed methods (`cast_cognitive_vote`, `resolve_dispute`) go through GenLayer's Equivalence Principle: multiple validators reason independently and reach subjective consensus, producing a transparent, auditable on-chain decision.
+
+---
 
 ## Stack
 
-React 19 · TypeScript · Tailwind CSS v4 · Framer Motion · Zustand · Lucide · `genlayer-js`
-(+ a Rive-ready `ClaoAssistant` for the computational-spirit character, wired but using an
-animated placeholder until the `.riv` asset is added).
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Tailwind CSS v4, Vite |
+| Animations | Framer Motion v12 |
+| State | Zustand v5 |
+| Wallet | RainbowKit + wagmi + viem |
+| Chain | genlayer-js v1.1.8 |
+| Contract | GenLayer intelligent contract (Python) |
 
-## Run
+---
+
+## Run locally
 
 ```bash
 npm install
@@ -40,61 +51,91 @@ npm run dev        # http://localhost:5173
 npm run build      # typecheck + production build
 ```
 
-The app runs fully against a **mock gateway** out of the box — no wallet required — so the entire
-UX (signing → pending → finalized) is interactive immediately.
+The app runs against a **mock gateway** by default. No wallet, no contract, no network required. The full UX (signing, pending, finalized) works immediately with simulated state.
 
-## Go live on Studionet
+---
 
-Studionet (chain id `61999`, RPC `https://studio.genlayer.com/api`) has a built-in faucet.
+## Deploy to Studionet
 
-**1 — Get a funded deployer key**
+Studionet (chain `61999`, RPC `https://studio.genlayer.com/api`) has a built-in faucet.
+
+**1. Get a funded deployer key**
+
 ```bash
-node -e "import('genlayer-js').then(m=>console.log(m.generatePrivateKey()))"
-cp scripts/.env.example scripts/.env      # paste the key into CLAO_DEPLOYER_PRIVATE_KEY
+node -e "import('genlayer-js').then(m => console.log(m.generatePrivateKey()))"
+cp scripts/.env.example scripts/.env   # paste key into CLAO_DEPLOYER_PRIVATE_KEY
 ```
-Fund that address from the faucet at [studio.genlayer.com](https://studio.genlayer.com).
 
-**2 — Deploy + verify the contract**
+Fund the address from the faucet at [studio.genlayer.com](https://studio.genlayer.com).
+
+**2. Deploy and verify**
+
 ```bash
-npm run deploy   # deploys CLAORegistry.py, seeds the DAO via constructor args,
-                 # confirms get_dao, and writes VITE_CLAO_ADDRESS to .env.local
-npm run smoke    # real submit_proposal write → get_proposal read round-trip
+npm run deploy   # deploys CLAORegistry.py, seeds the DAO, writes VITE_CLAO_ADDRESS to .env.local
+npm run smoke    # write + read round-trip against the live contract
 ```
-> Alternative (GenLayer CLI): `npm run gen:network && npm run gen:account && npm run gen:deploy`.
 
-**3 — Run live**
+**3. Run against the live contract**
+
 ```bash
 npm run dev
 ```
-Click **Connect Studionet** in the header. The app swaps the mock gateway for the live one,
-hydrates from `get_complete_storage`, and every action becomes a real `writeContract`
-transaction — toasts flip from `SIM` → `STUDIONET`, and the **Cognitive Branch** chip shows the
-contract address + last sync. The Sync button reconciles the UI with chain state on demand.
 
-The frontend never imports `genlayer-js` until you connect (dynamic import), keeping the initial
-bundle lean and the app usable offline.
+Click **Connect Studionet** in the header. The app swaps the mock gateway for the live one, hydrates from `get_complete_storage`, and every action becomes a real `writeContract` transaction. Toasts flip from `SIM` to `STUDIONET`, and the Cognitive Branch chip shows the contract address and last sync.
 
-## On-chain scripts
+---
+
+## Scripts
 
 | Command | What it does |
 |---|---|
-| `npm run deploy` | Deploy `CLAORegistry.py` from source (`deployContract`), seed DAO, write address to `.env.local` |
-| `npm run smoke` | Real write+read round-trip against the deployed contract |
-| `npm run gen:*` | GenLayer CLI passthrough (`network` / `account` / `deploy`) |
+| `npm run deploy` | Deploy `CLAORegistry.py`, seed DAO, write address to `.env.local` |
+| `npm run smoke` | Real write + read round-trip against the deployed contract |
+| `npm run gen:network` | GenLayer CLI: configure Studionet |
+| `npm run gen:account` | GenLayer CLI: create an account |
+| `npm run gen:deploy` | GenLayer CLI: deploy via CLI (alternative to `npm run deploy`) |
+
+---
 
 ## Architecture
 
 ```
-contracts/CLAORegistry.py     GenLayer intelligent contract (the Cognitive Branch)
-src/types         domain + GenLayer + character + validation types
-src/data          mock DAO / memory / reputation seeds
-src/lib/genlayer  gateway abstraction · live (genlayer-js) + mock impls · ClaoContract facade
-src/store         Zustand slices + cross-cutting orchestration (the verbs the UI calls)
-src/hooks         useClaoState · useAnimatedNumber · useContractWrite
-src/animations    Rive state-map (claoStates) + Framer variants
-src/components/ui  GlassPanel · RadialMeter · MetricBar · StatusPill · GlowButton · Sparkline · TxToast
-src/modules        header · governance · proposals · validation · reputation · memory · clao
+contracts/
+  CLAORegistry.py       GenLayer intelligent contract (the Cognitive Branch)
+
+src/
+  types/                Domain types, GenLayer types, validation
+  data/                 Mock DAO, memory, and reputation seeds
+  lib/genlayer/         Gateway abstraction: live (genlayer-js) + mock + ClaoContract facade
+  store/                Zustand slices and cross-cutting orchestration
+  hooks/                useClaoState, useAnimatedNumber, useContractWrite
+  animations/           Framer Motion variants and character state map
+  components/ui/        GlassPanel, RadialMeter, MetricBar, StatusPill, GlowButton, TxToast
+  modules/              header, governance, proposals, validation, reputation, memory, clao
+  screens/              LandingPage, AppShell, and sub-pages
+  shell/                TopBar and Sidebar
 ```
 
-Adding the Rive character later touches exactly one file — `src/modules/clao/ClaoAssistant.tsx` —
-because the mood → Rive input mapping already lives in `src/animations/claoStates.ts`.
+---
+
+## Environment variables
+
+| Variable | Where | Purpose |
+|---|---|---|
+| `VITE_CLAO_ADDRESS` | `.env.local` | Deployed contract address |
+| `VITE_GL_NETWORK` | `.env.local` | `studionet` or `testnetBradbury` |
+| `CLAO_DEPLOYER_PRIVATE_KEY` | `scripts/.env` | Deployer key for `npm run deploy` |
+| `CLAO_NETWORK` | `scripts/.env` | Network for deploy scripts |
+| `CLAO_DAO_ID` | `scripts/.env` | DAO identifier for seeding |
+| `CLAO_DAO_NAME` | `scripts/.env` | DAO display name for seeding |
+
+Neither `.env.local` nor `scripts/.env` is committed to git.
+
+---
+
+## GenLayer docs
+
+- [Intelligent Contracts](https://docs.genlayer.com/developers/intelligent-contracts/overview)
+- [Equivalence Principle](https://docs.genlayer.com/concepts/equivalence-principle)
+- [Writing Data](https://docs.genlayer.com/developers/decentralized-applications/writing-data)
+- [genlayer-js](https://docs.genlayer.com/developers/genlayer-js/overview)

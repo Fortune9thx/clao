@@ -1,13 +1,14 @@
 import type { StateCreator } from "zustand";
 import type { ClaoStore, ProposalSlice } from "@/store/types";
-import { PROPOSALS } from "@/data/mockDao";
 
+// Proposals start empty and hydrate from get_complete_storage on load —
+// every proposal shown in the UI exists on-chain.
 export const createProposalSlice: StateCreator<ClaoStore, [], [], ProposalSlice> = (
   set,
   get,
 ) => ({
-  proposals: PROPOSALS,
-  selectedProposalId: PROPOSALS[0]?.id ?? null,
+  proposals: [],
+  selectedProposalId: null,
 
   selectProposal: (id) => {
     if (get().selectedProposalId === id && get().validation.active) return;

@@ -1,10 +1,9 @@
 import type { ContractViewMethod, ContractWriteMethod } from "@/types";
 
-// Gateway abstraction: the rest of the app talks to ContractGateway and never
-// imports genlayer-js directly. Two implementations exist — LiveGateway
-// (real Studionet writes) and MockGateway (local simulation) — selected at
-// runtime so the command center is fully interactive before a contract is
-// deployed, then flips to live by connecting a wallet + setting VITE_CLAO_ADDRESS.
+// Gateway abstraction: the rest of the app talks to ContractGateway. Two
+// implementations exist — ReadOnlyGateway (real chain reads, no wallet;
+// writes rejected) and LiveGateway (signed writes after wallet connect).
+// Every byte of governance data the UI shows comes from the chain.
 
 export interface WriteResult {
   hash: string;

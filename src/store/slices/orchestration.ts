@@ -76,31 +76,23 @@ export const createOrchestrationSlice: StateCreator<
       const raw = await claoContract.getCompleteStorage();
       if (raw && Array.isArray(raw.proposals)) {
         const dispute = mapDispute(raw);
-        set((s) => ({
-          proposals: mergeProposals(raw, s.proposals),
-          memory: mapMemory(raw),
-          treasury: mapTreasury(raw, TREASURY),
-          ...(dispute ? { dispute } : {}),
-          lastSyncedAt: Date.now(),
-        }));
+        set((s) => {
+          const proposals = mergeProposals(raw, s.proposals);
+          return {
+            proposals,
+            memory: mapMemory(raw),
+            treasury: mapTreasury(raw, TREASURY),
+            ...(dispute ? { dispute } : {}),
+            // Keep a proposal selected so detail screens always have context.
+            selectedProposalId: s.selectedProposalId ?? proposals[0]?.id ?? null,
+            lastSyncedAt: Date.now(),
+          };
+        });
       }
     } catch (e) {
       console.warn("[CLAO] hydrate failed:", e);
     } finally {
       set({ hydrating: false });
-    }
-  },
-
-  // -- Bootstrap: register the DAO + submit the lead proposal on first load.
-  //    Exercises register_dao + submit_proposal write methods. -----------------
-  bootstrapDao: async () => {
-    const dao = get().currentDAO;
-    await runWrite(get, "register_dao", () =>
-      claoContract.registerDao(dao.id, dao.name, dao.treasury_balance),
-    );
-    const lead = get().proposals.find((p) => p.status === "GenLayer_Validation");
-    if (lead) {
-      await runWrite(get, "submit_proposal", () => claoContract.submitProposal(lead));
     }
   },
 
@@ -191,151 +183,93 @@ export const createOrchestrationSlice: StateCreator<
 
     get()._setValidation({ phase: "consensus" });
 
-    if (result.live && result.confirm) {
-      // ── LIVE PATH ─────────────────────────────────────────────────────────────
-      // Wait for GenLayer validators to finalize subjective consensus on-chain,
-      // then hydrate the store and read the ACTUAL LLM verdict + reasoning.
-      get()._pushReasoning(
-        "GenLayer validators reasoning on-chain — awaiting subjective consensus finalization…",
-        "info",
-      );
+    // Wait for GenLayer validators to finalize subjective consensus on-chain,
+    // then hydrate the store and read the ACTUAL LLM verdict + reasoning.
+    get()._pushReasoning(
+      "GenLayer validators reasoning on-chain — awaiting subjective consensus finalization…",
+      "info",
+    );
 
-      try {
-        await result.confirm; // waitForTransactionReceipt({ status: "FINALIZED" })
-      } catch {
-        // Receipt timeout — continue; hydrate will get whatever state exists.
-      }
-      get().updateTx(txId, { status: "finalized" });
-
-      await get().hydrateFromChain();
-
-      const updated = findProposal(get, proposalId);
-      const realAgreement = updated?.validator_consensus.current_agreement ?? 0;
-      const realReasoning = updated?.validator_consensus.arguments_for ?? "";
-      const realStatus = updated?.status ?? "GenLayer_Validation";
-
-      const onChainVerdict: "Approved" | "Escalated" | "Rejected" =
-        realStatus === "Validated" ? "Approved" :
-        realStatus === "Rejected" ? "Rejected" : "Escalated";
-      const risky = onChainVerdict !== "Approved";
-
-      // Animate agreement counter up to the real on-chain value.
-      for (let a = 0; a <= realAgreement; a += Math.max(4, Math.round(realAgreement / 10))) {
-        get()._setValidation({ agreement: Math.min(a, realAgreement) });
-        await sleep(70);
-      }
-      get()._setValidation({ agreement: realAgreement });
-
-      const nodes = get().validation.nodes.map((n, i) => ({
-        ...n,
-        stance: (i === get().validation.nodes.length - 1 && !risky
-          ? "against"
-          : risky && i % 2
-            ? "against"
-            : "for") as Stance,
-        confidence: clamp(realAgreement + (i - 2) * 4),
-      }));
-      get()._setValidation({ nodes });
-
-      // Surface the real LLM reasoning text from the contract.
-      if (realReasoning) {
-        get()._pushReasoning(`GenLayer LLM · ${realReasoning}`, "verdict");
-      }
-      get()._pushReasoning(
-        `On-chain consensus ${realAgreement}% → ${onChainVerdict}.`,
-        "verdict",
-      );
-      get()._setValidation({ phase: risky ? "disputed" : "complete" });
-
-      get().patchProposal(proposalId, {
-        status: realStatus,
-        validator_consensus: {
-          ...proposal.validator_consensus,
-          current_agreement: realAgreement,
-          status: risky ? "Escalated — Subjective Dispute" : "Subjective Consensus Reached",
-          arguments_for: realReasoning || proposal.validator_consensus.arguments_for,
-        },
-        ruling: {
-          verdict: onChainVerdict,
-          rationale: realReasoning || proposal.validator_consensus.arguments_for,
-          recordedAt: Date.now(),
-        },
-      });
-
-      if (risky) {
-        toast.warning("Escalated — dispute recommended", `${realAgreement}% consensus · below threshold`);
-        get().setMood("warning", "Elevated risk — dispute recommended");
-        get().fireTrigger("anomalyDetected");
-      } else {
-        toast.success("Validation complete", `${realAgreement}% on-chain consensus`);
-        get().setMood("success", `Validated at ${realAgreement}% on-chain consensus`);
-        get().setLevels({ excitementLevel: 82, confidenceLevel: realAgreement });
-      }
-      get().nudgeGovernancePressure(risky ? 8 : -6);
-      get().addMemoryEvent(
-        memoryFrom(
-          proposal,
-          "ruling",
-          onChainVerdict,
-          `On-chain consensus ${realAgreement}%.${realReasoning ? ` ${realReasoning.slice(0, 80)}` : ""}`,
-        ),
-      );
-    } else {
-      // ── MOCK PATH ─────────────────────────────────────────────────────────────
-      // No live wallet — fabricate verdict from risk score for simulation.
-      const target = proposal.validator_consensus.current_agreement;
-      const risky = proposal.cognitive_metrics.risk_score >= 50;
-
-      const nodes = get().validation.nodes.map((n, i) => {
-        const stance: Stance =
-          i === get().validation.nodes.length - 1 && !risky
-            ? "against"
-            : risky && i % 2
-              ? "against"
-              : "for";
-        return { ...n, stance, confidence: clamp(target + (i - 2) * 4) };
-      });
-      get()._setValidation({ nodes });
-
-      for (let a = 0; a <= target; a += Math.max(4, Math.round(target / 10))) {
-        get()._setValidation({ agreement: Math.min(a, target) });
-        await sleep(90);
-      }
-      get()._setValidation({ agreement: target });
-
-      if (result.confirm) await result.confirm;
-      get().updateTx(txId, { status: "finalized" });
-
-      const verdict = risky ? "Escalated" : "Approved";
-      get()._pushReasoning(`Subjective consensus ${target}% → ${verdict}.`, "verdict");
-      get()._setValidation({ phase: risky ? "disputed" : "complete" });
-
-      get().patchProposal(proposalId, {
-        status: risky ? "Disputed" : "Validated",
-        validator_consensus: {
-          ...proposal.validator_consensus,
-          current_agreement: target,
-          status: risky ? "Escalated — Subjective Dispute" : "Subjective Consensus Reached",
-        },
-        ruling: {
-          verdict: verdict as "Approved" | "Escalated",
-          rationale: proposal.validator_consensus.arguments_for,
-          recordedAt: Date.now(),
-        },
-      });
-
-      if (risky) {
-        toast.warning("Escalated — dispute recommended", `${target}% consensus · below threshold`);
-        get().setMood("warning", "Elevated risk — recommend dispute");
-        get().fireTrigger("anomalyDetected");
-      } else {
-        toast.success("Validation complete", `${target}% subjective consensus`);
-        get().setMood("success", `Validated at ${target}% consensus`);
-        get().setLevels({ excitementLevel: 82, confidenceLevel: target });
-      }
-      get().nudgeGovernancePressure(risky ? 8 : -6);
-      get().addMemoryEvent(memoryFrom(proposal, "ruling", verdict, `Consensus ${target}%.`));
+    try {
+      await result.confirm; // waitForTransactionReceipt({ status: "FINALIZED" })
+    } catch {
+      // Receipt timeout — continue; hydrate will get whatever state exists.
     }
+    get().updateTx(txId, { status: "finalized" });
+
+    await get().hydrateFromChain();
+
+    const updated = findProposal(get, proposalId);
+    const realAgreement = updated?.validator_consensus.current_agreement ?? 0;
+    const realReasoning = updated?.validator_consensus.arguments_for ?? "";
+    const realStatus = updated?.status ?? "GenLayer_Validation";
+
+    const onChainVerdict: "Approved" | "Escalated" | "Rejected" =
+      realStatus === "Validated" ? "Approved" :
+      realStatus === "Rejected" ? "Rejected" : "Escalated";
+    const risky = onChainVerdict !== "Approved";
+
+    // Animate agreement counter up to the real on-chain value.
+    for (let a = 0; a <= realAgreement; a += Math.max(4, Math.round(realAgreement / 10))) {
+      get()._setValidation({ agreement: Math.min(a, realAgreement) });
+      await sleep(70);
+    }
+    get()._setValidation({ agreement: realAgreement });
+
+    const nodes = get().validation.nodes.map((n, i) => ({
+      ...n,
+      stance: (i === get().validation.nodes.length - 1 && !risky
+        ? "against"
+        : risky && i % 2
+          ? "against"
+          : "for") as Stance,
+      confidence: clamp(realAgreement + (i - 2) * 4),
+    }));
+    get()._setValidation({ nodes });
+
+    // Surface the real LLM reasoning text from the contract.
+    if (realReasoning) {
+      get()._pushReasoning(`GenLayer LLM · ${realReasoning}`, "verdict");
+    }
+    get()._pushReasoning(
+      `On-chain consensus ${realAgreement}% → ${onChainVerdict}.`,
+      "verdict",
+    );
+    get()._setValidation({ phase: risky ? "disputed" : "complete" });
+
+    get().patchProposal(proposalId, {
+      status: realStatus,
+      validator_consensus: {
+        ...proposal.validator_consensus,
+        current_agreement: realAgreement,
+        status: risky ? "Escalated — Subjective Dispute" : "Subjective Consensus Reached",
+        arguments_for: realReasoning || proposal.validator_consensus.arguments_for,
+      },
+      ruling: {
+        verdict: onChainVerdict,
+        rationale: realReasoning || proposal.validator_consensus.arguments_for,
+        recordedAt: Date.now(),
+      },
+    });
+
+    if (risky) {
+      toast.warning("Escalated — dispute recommended", `${realAgreement}% consensus · below threshold`);
+      get().setMood("warning", "Elevated risk — dispute recommended");
+      get().fireTrigger("anomalyDetected");
+    } else {
+      toast.success("Validation complete", `${realAgreement}% on-chain consensus`);
+      get().setMood("success", `Validated at ${realAgreement}% on-chain consensus`);
+      get().setLevels({ excitementLevel: 82, confidenceLevel: realAgreement });
+    }
+    get().nudgeGovernancePressure(risky ? 8 : -6);
+    get().addMemoryEvent(
+      memoryFrom(
+        proposal,
+        "ruling",
+        onChainVerdict,
+        `On-chain consensus ${realAgreement}%.${realReasoning ? ` ${realReasoning.slice(0, 80)}` : ""}`,
+      ),
+    );
   },
 
   // -- "View Intelligence Report" → operator pins the AI verdict to memory.

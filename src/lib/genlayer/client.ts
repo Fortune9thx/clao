@@ -67,7 +67,7 @@ export interface LiveConnection {
 }
 
 // Network from env — validated against known chain keys at connect time.
-const NETWORK = ((import.meta.env.VITE_GL_NETWORK as string) || "studionet") as GlChainName;
+const NETWORK = ((import.meta.env.VITE_GL_NETWORK as string) || "testnetBradbury") as GlChainName;
 
 const TX_FINALIZED = "FINALIZED";
 
@@ -176,10 +176,10 @@ export async function connectLive(walletAddress?: `0x${string}`): Promise<LiveCo
   const allChains = gl.chains as Record<string, unknown>;
 
   const networkKey = NETWORK as string;
-  const chain = allChains[networkKey] ?? allChains["studionet"];
+  const chain = allChains[networkKey] ?? allChains["testnetBradbury"];
   if (!allChains[networkKey]) {
     console.warn(
-      `[CLAO] Unknown VITE_GL_NETWORK="${networkKey}". Falling back to studionet.`,
+      `[CLAO] Unknown VITE_GL_NETWORK="${networkKey}". Falling back to testnetBradbury.`,
       `Known networks: ${Object.keys(allChains).join(", ")}`,
     );
   }

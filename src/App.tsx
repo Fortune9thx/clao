@@ -37,16 +37,18 @@ function ScreenFallback() {
 }
 
 export default function App() {
-  const bootstrapDao = useClaoStore((s) => s.bootstrapDao);
+  const hydrateFromChain = useClaoStore((s) => s.hydrateFromChain);
   const showLanding  = useViewStore((s) => s.showLanding);
   const screen       = useViewStore((s) => s.screen);
   const booted       = useRef(false);
 
+  // Hydrate the command center with REAL on-chain state on load — read-only,
+  // no wallet required. Writes activate once a wallet connects.
   useEffect(() => {
     if (booted.current) return;
     booted.current = true;
-    void bootstrapDao();
-  }, [bootstrapDao]);
+    void hydrateFromChain();
+  }, [hydrateFromChain]);
 
   const Screen = SCREEN_COMPONENT[screen];
 

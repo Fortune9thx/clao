@@ -30,14 +30,15 @@ export const genlayerBradbury = defineChain({
     default: { http: ["https://rpc-bradbury.genlayer.com"] },
   },
   blockExplorers: {
-    default: { name: "GenLayer Explorer", url: "https://explorer.genlayer.com" },
+    default: { name: "GenLayer Bradbury Explorer", url: "https://explorer-bradbury.genlayer.com" },
   },
   testnet: true,
 });
 
-// Both chains registered — MetaMask "switch network" modal offers either.
+// Bradbury first — it is the primary network prompted on connect.
+// Studionet stays registered for development wallets.
 export const wagmiConfig = createConfig({
-  chains: [genlayerStudionet, genlayerBradbury],
+  chains: [genlayerBradbury, genlayerStudionet],
   connectors: [
     injected(),
     metaMask(),

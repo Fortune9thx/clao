@@ -1,9 +1,9 @@
 import type { StateCreator } from "zustand";
 import type { ClaoStore, MemorySlice } from "@/store/types";
-import { MEMORY_EVENTS } from "@/data/mockMemory";
 
+// Memory starts empty and hydrates from the on-chain append-only ledger.
 export const createMemorySlice: StateCreator<ClaoStore, [], [], MemorySlice> = (set) => ({
-  memory: MEMORY_EVENTS,
+  memory: [],
 
   addMemoryEvent: (event) =>
     set((s) => ({

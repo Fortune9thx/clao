@@ -244,7 +244,7 @@ const BLOG_POSTS: BlogPost[] = [
         ]} />
         <h3 style={{ font: `500 18px ${sans}`, color: "#F5F0E8", margin: "32px 0 12px" }}>Built on GenLayer</h3>
         <P>CLAO is built on GenLayer — the first blockchain with native support for subjective, LLM-powered smart contracts. GenLayer's <code style={{ fontFamily: mono, fontSize: 13, color: "#C4B5FD", background: "rgba(139,92,246,.08)", padding: "2px 6px", borderRadius: 3 }}>eq_principle</code> framework lets validators reason about governance questions that have no deterministic answer — exactly what complex DAO decisions require.</P>
-        <P>We're targeting the GenLayer Bradbury milestone. The CLAORegistry intelligent contract is live on Studionet today. Try it at the link above.</P>
+        <P>We're targeting the GenLayer Bradbury milestone. The CLAORegistry intelligent contract is live on the Bradbury Testnet today. Try it at the link above.</P>
       </>
     ),
   },
@@ -398,7 +398,7 @@ const DOC_SECTIONS = [
     accent: "#8B5CF6",
     items: [
       { heading: "What is CLAO?", body: "CLAO (Cognition Layer for Autonomous Organizations) is an AI-native governance intelligence platform built on GenLayer. It provides adaptive proposal analysis, reputation scoring, institutional memory, and on-chain dispute resolution — powered by subjective AI validators." },
-      { heading: "Supported Networks", body: "CLAO currently operates on GenLayer Studionet (chain ID 61999) for development and GenLayer Bradbury Testnet (chain ID 4221). Production mainnet support will follow GenLayer's mainnet launch." },
+      { heading: "Supported Networks", body: "CLAO operates on GenLayer Bradbury Testnet (chain ID 4221). GenLayer Studionet (chain ID 61999) remains supported for development. Production mainnet support will follow GenLayer's mainnet launch." },
       { heading: "Prerequisites", body: "You need a Web3 wallet (MetaMask recommended) and GEN tokens on the GenLayer network for gas fees. Visit the GenLayer faucet to obtain testnet GEN." },
     ],
   },
@@ -407,7 +407,7 @@ const DOC_SECTIONS = [
     accent: "#3B82F6",
     items: [
       { heading: "Step 1 — Install MetaMask", body: "Download MetaMask from metamask.io and create or import a wallet. Keep your seed phrase secure — CLAO cannot recover it." },
-      { heading: "Step 2 — Add GenLayer Network", body: "Click 'Connect Wallet' in the CLAO top bar. CLAO will prompt MetaMask to add the GenLayer Studionet network automatically. Approve the network addition." },
+      { heading: "Step 2 — Add GenLayer Network", body: "Click 'Connect Wallet' in the CLAO top bar. CLAO will prompt MetaMask to add the GenLayer Bradbury Testnet network automatically. Approve the network addition." },
       { heading: "Step 3 — Connect & Sync", body: "Once connected, CLAO syncs your on-chain state — existing proposals, reputation score, and governance history load automatically. The wallet chip turns green when live." },
     ],
   },

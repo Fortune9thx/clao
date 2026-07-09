@@ -69,7 +69,7 @@ function NetworkGuard() {
                 className="mono text-[10px]"
                 style={{ color: "#EF4444", letterSpacing: "0.02em" }}
               >
-                Wrong network — switch to GenLayer Studionet or Bradbury to interact with CLAO
+                Wrong network — switch to GenLayer Bradbury Testnet to interact with CLAO
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -128,7 +128,7 @@ function WalletChip() {
               !rbConnected
                 ? "Connect wallet"
                 : wrongChain
-                  ? "Wrong network — switch to GenLayer Studionet"
+                  ? "Wrong network — switch to GenLayer Bradbury Testnet"
                   : `${connection.chain ?? "GenLayer"}${live ? " · live" : ""}`
             }
           >

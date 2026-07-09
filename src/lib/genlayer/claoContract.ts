@@ -1,15 +1,18 @@
 import type { ContractWriteMethod, Proposal } from "@/types";
 import type { ContractGateway } from "./gateway";
-import { MockGateway } from "./mockProvider";
+import { ReadOnlyGateway } from "./readOnlyProvider";
 import { parseAmount } from "@/lib/utils/format";
 
 // ClaoContract — the typed, app-facing facade over whichever gateway is active.
 // Each method below maps an in-app governance action to a concrete CLAORegistry
 // write entrypoint, encoding domain objects into contract args. This is the
 // single place that "writes data" into the intelligent contract.
+//
+// Boots with ReadOnlyGateway (real chain reads, writes require wallet);
+// connectWallet() swaps in LiveGateway for signed transactions.
 
 export class ClaoContract {
-  private gateway: ContractGateway = new MockGateway();
+  private gateway: ContractGateway = new ReadOnlyGateway();
 
   /** Swap in the live gateway once a wallet connects. */
   setGateway(gateway: ContractGateway) {

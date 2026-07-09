@@ -93,7 +93,6 @@ export interface OrchestrationSlice {
     key: ReputationState["factors"][number]["key"],
     delta: number,
   ) => Promise<void>;
-  bootstrapDao: () => Promise<void>;
 }
 
 export type ClaoStore = DaoSlice &

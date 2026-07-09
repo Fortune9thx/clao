@@ -1,6 +1,6 @@
 import type { StateCreator } from "zustand";
 import type { ClaoStore, GenLayerSlice } from "@/store/types";
-import type { TxRecord } from "@/types";
+import type { TxRecord, GlChainName } from "@/types";
 import { claoContract } from "@/lib/genlayer/claoContract";
 import { connectLive } from "@/lib/genlayer/client";
 import { CONTRACT_ADDRESS } from "@/lib/genlayer/abi";
@@ -14,7 +14,7 @@ export const createGenLayerSlice: StateCreator<ClaoStore, [], [], GenLayerSlice>
 ) => ({
   connection: {
     status: "disconnected",
-    chain: "studionet",
+    chain: (import.meta.env.VITE_GL_NETWORK as GlChainName) || "testnetBradbury",
     contractAddress: CONTRACT_ADDRESS,
     live: false,
   },
@@ -58,9 +58,6 @@ export const createGenLayerSlice: StateCreator<ClaoStore, [], [], GenLayerSlice>
       toast.success(`Connected to GenLayer ${network}`, address);
 
       // Re-hydrate from chain to sync any on-chain state changes since last load.
-      // Do NOT call bootstrapDao() here — App.tsx calls it on mount. Re-calling
-      // would attempt to re-submit proposals that already exist on-chain, causing
-      // "proposal already exists" contract errors.
       await get().hydrateFromChain();
     } catch (err) {
       const msg = err instanceof Error
@@ -92,10 +89,10 @@ export const createGenLayerSlice: StateCreator<ClaoStore, [], [], GenLayerSlice>
             : isUserReject
               ? "Connection cancelled."
               : isWrongNet
-                ? "Switch MetaMask to GenLayer Studionet."
+                ? "Switch MetaMask to GenLayer Bradbury Testnet."
                 : msg.length > 120 ? msg.slice(0, 120) + "…" : msg;
 
-      console.warn("[CLAO] connectWallet failed, falling back to mock:", msg);
+      console.warn("[CLAO] connectWallet failed (read-only mode stays active):", msg);
       set((s) => ({
         connection: { ...s.connection, status: newStatus },
         connectionError: userMessage,

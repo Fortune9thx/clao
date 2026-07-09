@@ -16,8 +16,8 @@ The `CLAORegistry` intelligent contract (`contracts/CLAORegistry.py`) exposes th
 
 | Action | Contract method | Kind | Capability |
 |---|---|---|---|
-| Boot DAO | `register_dao` | write | structured state |
-| Submit | `submit_proposal` | write | structured state |
+| DAO registration (deploy script) | `register_dao` | write | structured state |
+| Submit proposal (UI modal) | `submit_proposal` | write | structured state |
 | Validate | `cast_cognitive_vote` | write + LLM | subjective consensus on-chain |
 | Record ruling | `record_ruling` | write | institutional memory |
 | Open challenge | `open_dispute` | write | dispute intake |
@@ -51,7 +51,7 @@ npm run dev        # http://localhost:5173
 npm run build      # typecheck + production build
 ```
 
-The app runs against a **mock gateway** by default. No wallet, no contract, no network required. The full UX (signing, pending, finalized) works immediately with simulated state.
+The app boots in **read-only live mode**: it hydrates real on-chain state from the deployed CLAORegistry with no wallet required. Connecting a wallet unlocks writes. There is no mock or simulation path; every proposal, memory entry, and treasury figure shown comes from the chain.
 
 ---
 

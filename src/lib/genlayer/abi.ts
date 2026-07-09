@@ -36,6 +36,7 @@ export const WRITE_METHODS: Record<ContractWriteMethod, WriteMethodMeta> = {
   update_reputation: { method: "update_reputation", label: "Update Reputation", cognitive: false },
 };
 
-export const CONTRACT_ADDRESS = import.meta.env.VITE_CLAO_ADDRESS as
-  | `0x${string}`
-  | undefined;
+export const CONTRACT_ADDRESS = (
+  import.meta.env.VITE_CLAO_ADDRESS ||
+  "0x80D072dc6956d2658cF0272b4a15479E3FD4C594"
+) as `0x${string}`;
